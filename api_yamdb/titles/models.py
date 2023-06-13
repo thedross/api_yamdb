@@ -4,6 +4,11 @@ from django.core.validators import RegexValidator, MaxValueValidator
 from django.contrib.auth import get_user_model
 from django.db import models
 
+from titles.constants import (
+    SCORE_CHOICES,
+    TEXT_UPPER_BOUND,
+)
+
 User = get_user_model()
 
 
@@ -66,6 +71,9 @@ class Title(models.Model):
         verbose_name='Жанр',
         related_name='genres',
     )
+    rating = models.IntegerField(
+        verbose_name='Рейтинг произведения',
+    )
 
     class Meta:
         verbose_name = 'Тайтл'
@@ -76,57 +84,88 @@ class Title(models.Model):
 
 
 class Review(models.Model):
+    """
+    Класс отзыва на произведение.
+
+    Содержит следующие атрибуты:
+
+    title - произведение, к которому написан отзыв
+    author - никнейм автора отзыва
+    text - текст отзыва
+    pub_date - дата публикации отзыва
+    score - оценка для произведения
+    """
     title = models.ForeignKey(
-        'Title',
-        verbose_name='Тайтл',
+        Title,
+        verbose_name='Произведение(тайтл)',
         on_delete=models.CASCADE,
         related_name='reviewed_title'
     )
     author = models.ForeignKey(
         User,
-        verbose_name='Автор',
+        verbose_name='Автор отзыва',
         on_delete=models.CASCADE,
-
     )
-    text = models.TextField('Текст')
+    text = models.TextField(
+        verbose_name='Текст отзыва',
+    )
+    pub_date = models.DateTimeField(
+        verbose_name='Дата публикации',
+        auto_now_add=True
+    )
 
     # Не уверена, что это понравится ревьюверам из-за "магического числа" 11
-    SCORE_CHOICES = [(score, str(score)) for score in range(1, 11)]
+    # Если я правильно понимаю, то choices используется для выпадания списка
+    # с читаемыми баллами, как мне кажется это можно упаковать
+    # в отдельный кортеж
 
-    score = models.IntegerField(choices=SCORE_CHOICES)
+    score = models.IntegerField(
+        verbose_name='Оценка пользователя',
+        choices=SCORE_CHOICES,
+    )
 
     class Meta:
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
 
     def __str__(self):
-        return self.text[:15] + '...'
+        return self.text[:TEXT_UPPER_BOUND] + '...'
 
 
 class Comment(models.Model):
-    title = models.ForeignKey(
-        'Title',
-        verbose_name='Тайтл',
-        on_delete=models.CASCADE,
-        related_name='commented_title'
-    )
+    """
+    Класс комментария к отзыву (модели Review).
+    
+    Содержит следующие атрибуты:
+
+    rewiew - комментируемый отзыв
+    author - автор отзыва
+    text - текст комментария
+    pub_date - дата публикации комментария
+    """
+    
     review = models.ForeignKey(
-        'Review',
-        verbose_name='Отзыв',
+        Review,
+        verbose_name='Комментируемый отзыв',
         on_delete=models.CASCADE,
         related_name='review'
     )
     author = models.ForeignKey(
         User,
-        verbose_name='Автор',
+        verbose_name='Автор отзыва',
         on_delete=models.CASCADE,
-
     )
-    text = models.TextField('Текст')
+    text = models.TextField(
+        verbose_name='Текст отзыва',
+    )
+    pub_date = models.DateTimeField(
+        verbose_name='Дата публикации',
+        auto_now_add=True
+    )
 
     class Meta:
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
 
     def __str__(self):
-        return self.text[:15] + '...'
+        return self.text[:TEXT_UPPER_BOUND] + '...'
