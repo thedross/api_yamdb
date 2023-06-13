@@ -30,7 +30,7 @@ class ReviewAdmin(admin.ModelAdmin):
     list_display = ('title', 'author', 'text', 'score')
     search_fields = ('text', )
     list_filter = ('title', 'author',)
-    empty_value_display = '-пусто-'
+    empty_value_display = '-поставьте оценку-'
 
 
 @admin.register(Title)
