@@ -1,17 +1,21 @@
 from datetime import date
 
-from django.core.validators import RegexValidator, MaxValueValidator
+from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.validators import MaxValueValidator, RegexValidator
 from django.db import models
 
 User = get_user_model()
 
 
 class CustomBaseModel(models.Model):
-    name = models.CharField('Название', max_length=256)
+    name = models.CharField(
+        'Название',
+        max_length=settings.DEFAULT_NAME_LENGTH
+    )
     slug = models.CharField(
         'Слаг',
-        max_length=256,
+        max_length=settings.DEFAULT_SLUG_LENGTH,
         unique=True,
         validators=[
             RegexValidator(
@@ -42,10 +46,12 @@ class Category(CustomBaseModel):
 
 
 class Title(models.Model):
-    name = models.CharField('Название', max_length=200)
+    name = models.CharField(
+        'Название',
+        max_length=settings.DEFAULT_NAME_LENGTH
+    )
     year = models.IntegerField(
         'Год выпуска',
-        # Оставила отрицательные на случай до НЭ
         validators=[
             MaxValueValidator(
                 limit_value=date.today().year,
@@ -90,17 +96,18 @@ class Review(models.Model):
     )
     text = models.TextField('Текст')
 
-    # Не уверена, что это понравится ревьюверам из-за "магического числа" 11
-    SCORE_CHOICES = [(score, str(score)) for score in range(1, 11)]
+    SCORE_CHOICES = [
+        (score, str(score)) for score in range(1, settings.DEFAULT_SCORE)
+    ]
 
-    score = models.IntegerField(choices=SCORE_CHOICES)
+    score = models.IntegerField('Рейтинг', choices=SCORE_CHOICES)
 
     class Meta:
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
 
     def __str__(self):
-        return self.text[:15] + '...'
+        return self.text[:settings.DEFAULT_STR_LENGTH] + '...'
 
 
 class Comment(models.Model):
@@ -129,4 +136,4 @@ class Comment(models.Model):
         verbose_name_plural = 'Комментарии'
 
     def __str__(self):
-        return self.text[:15] + '...'
+        return self.text[:settings.DEFAULT_STR_LENGTH] + '...'
