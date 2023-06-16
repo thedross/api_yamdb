@@ -16,7 +16,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'titles.apps.TitlesConfig'
+    'titles.apps.TitlesConfig',
+    'rest_framework',
+    'titles',
+    'api',
 ]
 
 MIDDLEWARE = [
@@ -89,10 +92,8 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = ((BASE_DIR / 'static/'),)
 
-DEFAULT_NAME_LENGTH = 256
+REST_FRAMEWORK = {
 
-DEFAULT_SLUG_LENGTH = 50
-
-DEFAULT_SCORE = 10
-
-DEFAULT_STR_LENGTH = 15
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
+}
