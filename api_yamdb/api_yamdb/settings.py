@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from api_yamdb.constants import PAGINATION_INDICATOR
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -16,8 +18,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
     'titles.apps.TitlesConfig',
     'users.apps.UsersConfig',
+    'api',
 ]
 
 MIDDLEWARE = [
@@ -99,3 +103,8 @@ DEFAULT_SLUG_LENGTH = 50
 DEFAULT_SCORE = 10
 
 DEFAULT_STR_LENGTH = 15
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': PAGINATION_INDICATOR
+}
