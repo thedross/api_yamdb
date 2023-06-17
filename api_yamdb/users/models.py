@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+
 import users.constants as const
 
 
@@ -28,37 +29,30 @@ class CustomUser(AbstractUser):
         max_length=150,
         blank=True
     )
-    userrole = models.CharField(
+    role = models.CharField(
         verbose_name='Роль',
         max_length=150,
         choices=const.CHOICES_ROLE,
         default=const.USER,
         blank=True
     )
-    bio = models.CharField(
+    bio = models.TextField(
         verbose_name='Биография',
         max_length=254,
         blank=True,
     )
-    confirmation_code = models.CharField(
-        verbose_name='Код подтверждения',
-        max_length=254,
-        null=True,
-        blank=False,
-        default='1234567890'
-    )
 
     @property
     def is_user(self):
-        return self.userrole == const.USER
+        return self.role == const.USER
 
     @property
     def is_moderator(self):
-        return self.userrole == const.MODERATOR
+        return self.role == const.MODERATOR
 
     @property
     def is_admin(self):
-        return self.userrole == const.ADMIN
+        return self.role == const.ADMIN
 
     class Meta:
         ordering = ('id',)

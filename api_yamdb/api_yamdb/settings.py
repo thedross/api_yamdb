@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from datetime import timedelta
+
 from api_yamdb.constants import PAGINATION_INDICATOR
 
 
@@ -19,6 +21,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_simplejwt',
     'titles.apps.TitlesConfig',
     'users.apps.UsersConfig',
     'api',
@@ -105,6 +108,17 @@ DEFAULT_SCORE = 10
 DEFAULT_STR_LENGTH = 15
 
 REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': PAGINATION_INDICATOR
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'AUTH_HEADER_TYPES': ('Bearer',),
 }
