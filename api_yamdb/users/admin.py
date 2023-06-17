@@ -22,18 +22,17 @@ class CustomUserAdmin(UserAdmin):
         (None, {'fields': ('username', 'password')}),
         (('Personal info'), {'fields': ('first_name', 'last_name', 'email')}),
         (('Permissions'), {'fields': (
-            'userrole', 'is_active', 'is_staff', 'is_superuser'
+            'role', 'is_active', 'is_staff', 'is_superuser'
         )}),
         (('Important dates'), {'fields': ('last_login', 'date_joined')}),
         (('Bio'), {'fields': ('bio',)}),
     )
-
     list_display = (
         'email',
         'username',
         'first_name',
         'last_name',
-        'userrole',
+        'role',
         'bio',
     )
     search_fields = (
