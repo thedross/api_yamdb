@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, RegexValidator
 from django.db import models
+from django.utils.timezone import now
 
 from titles.constants import (
     SCORE_CHOICES,
@@ -79,6 +80,7 @@ class Title(models.Model):
     )
     rating = models.IntegerField(
         verbose_name='Рейтинг произведения',
+        default=None,
     )
 
     class Meta:
@@ -105,7 +107,7 @@ class Review(models.Model):
         Title,
         verbose_name='Произведение(тайтл)',
         on_delete=models.CASCADE,
-        related_name='reviewed_title'
+        related_name='titles_review'
     )
     author = models.ForeignKey(
         User,
@@ -119,11 +121,6 @@ class Review(models.Model):
         verbose_name='Дата публикации',
         auto_now_add=True
     )
-
-    # Не уверена, что это понравится ревьюверам из-за "магического числа" 11
-    # Если я правильно понимаю, то choices используется для выпадания списка
-    # с читаемыми баллами, как мне кажется это можно упаковать
-    # в отдельный кортеж
 
     score = models.IntegerField(
         verbose_name='Оценка пользователя',
@@ -141,7 +138,7 @@ class Review(models.Model):
 class Comment(models.Model):
     """
     Класс комментария к отзыву (модели Review).
-    
+
     Содержит следующие атрибуты:
 
     rewiew - комментируемый отзыв
@@ -149,12 +146,12 @@ class Comment(models.Model):
     text - текст комментария
     pub_date - дата публикации комментария
     """
-    
+
     review = models.ForeignKey(
         Review,
         verbose_name='Комментируемый отзыв',
         on_delete=models.CASCADE,
-        related_name='review'
+        related_name='comments'
     )
     author = models.ForeignKey(
         User,
@@ -166,7 +163,7 @@ class Comment(models.Model):
     )
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
-        auto_now_add=True
+        auto_now_add=True,
     )
 
     class Meta:
