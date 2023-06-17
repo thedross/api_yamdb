@@ -4,7 +4,6 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, RegexValidator
 from django.db import models
-from django.utils.timezone import now
 
 from titles.constants import (
     SCORE_CHOICES,
@@ -80,6 +79,7 @@ class Title(models.Model):
     )
     rating = models.IntegerField(
         verbose_name='Рейтинг произведения',
+        null=True,
         default=None,
     )
 
@@ -130,6 +130,12 @@ class Review(models.Model):
     class Meta:
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['title', 'author'],
+                name='unique_review'
+            ),
+        ]
 
     def __str__(self):
         return self.text[:TEXT_UPPER_BOUND] + '...'
@@ -157,6 +163,7 @@ class Comment(models.Model):
         User,
         verbose_name='Автор отзыва',
         on_delete=models.CASCADE,
+        related_name='comments',
     )
     text = models.TextField(
         verbose_name='Текст отзыва',

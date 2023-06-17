@@ -11,7 +11,7 @@ router_v1 = DefaultRouter()
 router_v1.register(
     r'^titels/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)',
     ReviewViewSet,
-    basename='comment'
+    basename='reviews'
 )
 router_v1.register(
     r'^titels/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments',
