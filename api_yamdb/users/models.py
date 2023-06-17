@@ -1,40 +1,18 @@
-from django.db import models
-from django.contrib.auth.models import AbstractUser
-
-
-class CustomUser(AbstractUser):
-    is_moderator = models.BooleanField(default=False)
-    is_admin = models.BooleanField(
-        default=False,
-        help_text='True if user is admin'
-    )
-
-    def __str__(self):
-        return self.username
-
-
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-USER = 'user'
-MODERATOR = 'moderator'
-ADMIN = 'admin'
-CHOICES_ROLE = [
-    (USER, USER),
-    (MODERATOR, MODERATOR),
-    (ADMIN, ADMIN)
-]
+import users.constants as const
+
 
 class CustomUser(AbstractUser):
     username = models.CharField(
-        verbose_name='Никнейм',
+        verbose_name='Ник',
         max_length=150,
         unique=True,
         blank=False,
         null=False
     )
     email = models.EmailField(
-        verbose_name='Адрес e-mail'
-        verbose_name='Адрес e-mail',
+        verbose_name='e-mail',
         max_length=254,
         unique=True,
         blank=False,
@@ -52,8 +30,9 @@ class CustomUser(AbstractUser):
     )
     userrole = models.CharField(
         verbose_name='Роль',
-        choices=CHOICES_ROLE,
-        default=USER,
+        max_length=150,
+        choices=const.CHOICES_ROLE,
+        default=const.USER,
         blank=True
     )
     bio = models.CharField(
@@ -68,20 +47,23 @@ class CustomUser(AbstractUser):
         blank=False,
         default='1234567890'
     )
+
     @property
     def is_user(self):
-        return self.userrole == USER
-    
+        return self.userrole == const.USER
+
     @property
     def is_moderator(self):
-        return self.userrole == MODERATOR
-    
+        return self.userrole == const.MODERATOR
+
     @property
     def is_admin(self):
-        return self.userrole == ADMIN
+        return self.userrole == const.ADMIN
+
     class Meta:
         ordering = ('id',)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
+
     def __str__(self):
         return self.username
