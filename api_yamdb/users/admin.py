@@ -6,7 +6,7 @@ from .models import CustomUser
 @admin.register(CustomUser)
 class CustomUserAdmin(UserAdmin):
     list_display = (
-        'email',
+        'id',
         'username',
         'first_name',
         'last_name',
