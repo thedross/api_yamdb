@@ -134,7 +134,7 @@ class Review(models.Model):
         Title,
         verbose_name='Произведение(тайтл)',
         on_delete=models.CASCADE,
-        related_name='reviewed_title'
+        related_name='titles_review'
     )
     author = models.ForeignKey(
         User,
@@ -166,6 +166,7 @@ class Comment(models.Model):
     """
     Класс комментария к отзыву (модели Review).
 
+
     Содержит следующие атрибуты:
 
     rewiew - комментируемый отзыв
@@ -174,11 +175,12 @@ class Comment(models.Model):
     pub_date - дата публикации комментария
     """
 
+
     review = models.ForeignKey(
         Review,
         verbose_name='Комментируемый отзыв',
         on_delete=models.CASCADE,
-        related_name='review'
+        related_name='comments'
     )
     author = models.ForeignKey(
         User,
@@ -190,7 +192,7 @@ class Comment(models.Model):
     )
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
-        auto_now_add=True
+        auto_now_add=True,
     )
 
     class Meta:
