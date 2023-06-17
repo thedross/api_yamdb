@@ -1,6 +1,7 @@
 from datetime import date
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, RegexValidator
 from django.db import models
 from django.utils.timezone import now
@@ -10,9 +11,7 @@ from titles.constants import (
     TEXT_UPPER_BOUND,
 )
 
-from users.models import CustomUser
-
-User = CustomUser
+User = get_user_model()
 
 
 class CustomBaseModel(models.Model):
