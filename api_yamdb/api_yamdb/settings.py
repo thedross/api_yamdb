@@ -92,8 +92,10 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = ((BASE_DIR / 'static/'),)
 
-REST_FRAMEWORK = {
+DEFAULT_NAME_LENGTH = 256
 
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10,
-}
+DEFAULT_SLUG_LENGTH = 50
+
+DEFAULT_SCORE = 10
+
+DEFAULT_STR_LENGTH = 15

@@ -1,7 +1,8 @@
 from datetime import date
 
-from django.core.validators import RegexValidator, MaxValueValidator
+from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.validators import MaxValueValidator, RegexValidator
 from django.db import models
 
 from titles.constants import (
@@ -13,10 +14,13 @@ User = get_user_model()
 
 
 class CustomBaseModel(models.Model):
-    name = models.CharField('Название', max_length=256)
+    name = models.CharField(
+        'Название',
+        max_length=settings.DEFAULT_NAME_LENGTH
+    )
     slug = models.CharField(
         'Слаг',
-        max_length=256,
+        max_length=settings.DEFAULT_SLUG_LENGTH,
         unique=True,
         validators=[
             RegexValidator(
@@ -47,10 +51,12 @@ class Category(CustomBaseModel):
 
 
 class Title(models.Model):
-    name = models.CharField('Название', max_length=200)
+    name = models.CharField(
+        'Название',
+        max_length=settings.DEFAULT_NAME_LENGTH
+    )
     year = models.IntegerField(
         'Год выпуска',
-        # Оставила отрицательные на случай до НЭ
         validators=[
             MaxValueValidator(
                 limit_value=date.today().year,
