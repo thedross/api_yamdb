@@ -22,8 +22,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt',
-    'titles.apps.TitlesConfig',
-    'users.apps.UsersConfig',
+    'django_filters',
+    'users',
+    'titles',
     'api',
 ]
 
@@ -99,23 +100,29 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = ((BASE_DIR / 'static/'),)
 
-DEFAULT_NAME_LENGTH = 256
-
-DEFAULT_SLUG_LENGTH = 50
-
-DEFAULT_SCORE = 10
-
-DEFAULT_STR_LENGTH = 15
-
 REST_FRAMEWORK = {
+    # For BrowsableAPI
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer'
+    ),
+
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ],
+
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication',
     ],
+
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend'
+    ],
+
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': PAGINATION_INDICATOR
+
+    'PAGE_SIZE': PAGINATION_INDICATOR,
 }
 
 SIMPLE_JWT = {
