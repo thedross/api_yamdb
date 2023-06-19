@@ -107,7 +107,7 @@ class Title(models.Model):
     rating = models.IntegerField(
         verbose_name='Рейтинг произведения',
         null=True,
-        default=0
+        default=None,
     )
 
     class Meta:
@@ -157,6 +157,12 @@ class Review(models.Model):
     class Meta:
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['title', 'author'],
+                name='unique_review'
+            ),
+        ]
 
     def __str__(self):
         return self.text[:TEXT_UPPER_BOUND] + '...'
@@ -186,6 +192,7 @@ class Comment(models.Model):
         User,
         verbose_name='Автор отзыва',
         on_delete=models.CASCADE,
+        related_name='comments',
     )
     text = models.TextField(
         verbose_name='Текст отзыва',
