@@ -18,8 +18,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'titles.apps.TitlesConfig',
     'rest_framework',
+    'django_filters',
+    'users',
+    'titles',
     'api',
 ]
 
@@ -77,6 +79,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_USER_MODEL = 'users.CustomUser'
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LANGUAGE_CODE = 'ru-ru'
@@ -93,15 +97,26 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = ((BASE_DIR / 'static/'),)
 
-DEFAULT_NAME_LENGTH = 256
-
-DEFAULT_SLUG_LENGTH = 50
-
-DEFAULT_SCORE = 10
-
-DEFAULT_STR_LENGTH = 15
-
 REST_FRAMEWORK = {
+    # For BrowsableAPI
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer'
+    ),
+
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ],
+
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend'
+    ],
+
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': PAGINATION_INDICATOR
+
+    'PAGE_SIZE': PAGINATION_INDICATOR,
 }

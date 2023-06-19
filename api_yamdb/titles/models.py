@@ -1,11 +1,12 @@
 from datetime import date
 
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, RegexValidator
 from django.db import models
 
 from titles.constants import (
+    DEFAULT_NAME_LENGTH,
+    DEFAULT_SLUG_LENGTH,
     SCORE_CHOICES,
     TEXT_UPPER_BOUND,
 )
@@ -14,13 +15,21 @@ User = get_user_model()
 
 
 class CustomBaseModel(models.Model):
+    """
+    Базовый класс для классов жанра и категории.
+
+    Содержит следующие атрибуты:
+
+    name - название
+    slug - слаг
+    """
     name = models.CharField(
         'Название',
-        max_length=settings.DEFAULT_NAME_LENGTH
+        max_length=DEFAULT_NAME_LENGTH
     )
     slug = models.CharField(
         'Слаг',
-        max_length=settings.DEFAULT_SLUG_LENGTH,
+        max_length=DEFAULT_SLUG_LENGTH,
         unique=True,
         validators=[
             RegexValidator(
@@ -39,21 +48,39 @@ class CustomBaseModel(models.Model):
 
 
 class Genre(CustomBaseModel):
+    """
+    Класс жанра.
+    """
     class Meta(CustomBaseModel.Meta):
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
 
 
 class Category(CustomBaseModel):
+    """
+    Класс категории.
+    """
     class Meta(CustomBaseModel.Meta):
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
 
 class Title(models.Model):
+    """
+    Класс произведения.
+
+    Содержит следующие атрибуты:
+
+    name - название произведения
+    year - год выпуска произведения
+    description - описание произведения
+    category - категория произведения
+    genre - жанр произведения
+    rating - рейтинг произведения
+    """
     name = models.CharField(
         'Название',
-        max_length=settings.DEFAULT_NAME_LENGTH
+        max_length=DEFAULT_NAME_LENGTH
     )
     year = models.IntegerField(
         'Год выпуска',
@@ -145,6 +172,7 @@ class Comment(models.Model):
     """
     Класс комментария к отзыву (модели Review).
 
+
     Содержит следующие атрибуты:
 
     rewiew - комментируемый отзыв
@@ -152,6 +180,7 @@ class Comment(models.Model):
     text - текст комментария
     pub_date - дата публикации комментария
     """
+
 
     review = models.ForeignKey(
         Review,
