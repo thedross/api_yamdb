@@ -15,6 +15,11 @@ from api.serializers import (
 )
 
 
+# Рейтинг для произведений TitleViewSet
+# from django.db.models import Avg - импорт
+# queryset = Title.objects.all().annotate(Avg('titles_review__score'))
+
+
 class ReviewViewSet(viewsets.ModelViewSet):
     """
     Вью-сет моделей Review.
