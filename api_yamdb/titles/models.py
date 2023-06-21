@@ -180,8 +180,6 @@ class Comment(models.Model):
     text - текст комментария
     pub_date - дата публикации комментария
     """
-
-
     review = models.ForeignKey(
         Review,
         verbose_name='Комментируемый отзыв',

@@ -25,7 +25,7 @@ class CustomUserAdmin(UserAdmin):
             'role', 'is_active', 'is_staff', 'is_superuser'
         )}),
         (('Important dates'), {'fields': ('last_login', 'date_joined')}),
-        (('Bio'), {'fields': ('bio',)}),
+        (('Bio'), {'fields': ('bio', )}),
     )
     list_display = (
         'email',

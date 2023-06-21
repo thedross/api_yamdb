@@ -13,7 +13,6 @@ from titles.models import (
     Review,
     Title,
 )
-from api.permissions import IsAdminOrReadOnly
 from api.serializers import (
     TitleSerializer,
     GenreSerializer,
@@ -24,26 +23,34 @@ from api.serializers import (
 
 
 class BaseViewSet(viewsets.ModelViewSet):
-    """Базовый вьюсет для GenresViewSet и CategoriesViewSet."""
-    permission_classes = (
-        IsAdminOrReadOnly,
-        permissions.IsAuthenticatedOrReadOnly
-    )
+    """
+    Базовый вьюсет для GenresViewSet и CategoriesViewSet.
+    """
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
     filter_backends = (filters.SearchFilter, )
     search_fields = ('name', )
 
 
 class GenresViewSet(BaseViewSet):
+    """
+    Вью-сет моделей Genre.
+    """
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 
 
 class CategoriesViewSet(BaseViewSet):
+    """
+    Вью-сет моделей Category.
+    """
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
 
 class TitlesViewSet(viewsets.ModelViewSet):
+    """
+    Вью-сет моделей Title.
+    """
     queryset = Title.objects.all().select_related(
         'category'
     ).prefetch_related(
@@ -54,7 +61,7 @@ class TitlesViewSet(viewsets.ModelViewSet):
 
 # Рейтинг для произведений TitleViewSet
 # from django.db.models import Avg - импорт
-# queryset = Title.objects.all().annotate(Avg('titles_review__score'))
+# queryset = Title.objects.all().annotate(Avg('titles_review__score')
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
