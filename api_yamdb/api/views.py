@@ -5,6 +5,7 @@ from rest_framework import (
     viewsets,
     mixins
 )
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.pagination import PageNumberPagination
 
 from titles.models import (
@@ -16,6 +17,7 @@ from titles.models import (
 )
 from api.serializers import (
     TitleSerializer,
+    TitleCreateSerializer,
     GenreSerializer,
     CategorySerializer,
     ReviewSerializer,
@@ -70,10 +72,18 @@ class TitlesViewSet(viewsets.ModelViewSet):
         'genre'
     )
     serializer_class = TitleSerializer
+    filter_backends = (DjangoFilterBackend, )
+    pagination_class = PageNumberPagination
+    filterset_fields = ('genre__slug', )
     permission_classes = (
         permissions.IsAuthenticatedOrReadOnly,
         IsSuperOrAdminOrReadOnly
     )
+
+    def get_serializer_class(self):
+        if self.action in ('create', 'update', 'retrieve'):
+            return TitleCreateSerializer
+        return TitleSerializer
 
 # Рейтинг для произведений TitleViewSet
 # from django.db.models import Avg - импорт

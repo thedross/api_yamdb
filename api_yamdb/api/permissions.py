@@ -1,10 +1,12 @@
-from rest_framework import permissions 
+from rest_framework import permissions
 
 """
 Для остальных случаев ставим пермишен на уровне проекта
 или
 IsAuthenticatesOrReadOnly, где необходимо
 """
+
+LIST_ONLY_VIEWS = ('categories', 'genres')
 
 
 class IsSuperOrAdminOrReadOnly(permissions.IsAuthenticatedOrReadOnly):
@@ -13,10 +15,16 @@ class IsSuperOrAdminOrReadOnly(permissions.IsAuthenticatedOrReadOnly):
     Суперюзер - всегда админ, даже если изменить роль.
     """
     def has_permission(self, request, view):
+        if view.basename in LIST_ONLY_VIEWS:
+            return (
+                view.action == 'list'
+                or request.user.is_authenticated
+                and (request.user.is_admin or request.user.is_superuser)
+            )
         return (
-            view.action == 'list'
+            request.method in permissions.SAFE_METHODS
             or request.user.is_authenticated
-            and (request.user.is_admin or request.user.is_superuser)
+            or (request.user.is_admin or request.user.is_superuser)
         )
 
     def has_object_permission(self, request, view, obj):
