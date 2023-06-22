@@ -1,31 +1,31 @@
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import (
     filters,
+    mixins,
     permissions,
     viewsets,
-    mixins
 )
-from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.pagination import PageNumberPagination
 
-from titles.models import (
-    Title,
-    Genre,
-    Category,
-    Review,
-    Title,
-)
+from api.filters import TitleFilterSet
 from api.serializers import (
-    TitleSerializer,
-    TitleCreateSerializer,
-    GenreSerializer,
     CategorySerializer,
-    ReviewSerializer,
     CommentSerializer,
+    GenreSerializer,
+    ReviewSerializer,
+    TitleCreateSerializer,
+    TitleSerializer,
 )
 from api.permissions import (
     IsAuthorOrModeratorOrReadOnly,
     IsSuperOrAdminOrReadOnly
+)
+from titles.models import (
+    Category,
+    Genre,
+    Review,
+    Title,
 )
 
 
@@ -50,7 +50,7 @@ class GenresViewSet(BaseViewSet):
     """
     Вью-сет моделей Genre.
     """
-    queryset = Genre.objects.all()
+    queryset = Genre.objects.all().order_by('name')
     serializer_class = GenreSerializer
 
 
@@ -58,7 +58,7 @@ class CategoriesViewSet(BaseViewSet):
     """
     Вью-сет моделей Category.
     """
-    queryset = Category.objects.all()
+    queryset = Category.objects.all().order_by('name')
     serializer_class = CategorySerializer
 
 
@@ -70,11 +70,11 @@ class TitlesViewSet(viewsets.ModelViewSet):
         'category'
     ).prefetch_related(
         'genre'
-    )
+    ).order_by('name')
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend, )
+    filterset_class = TitleFilterSet
     pagination_class = PageNumberPagination
-    filterset_fields = ('genre__slug', )
     permission_classes = (
         permissions.IsAuthenticatedOrReadOnly,
         IsSuperOrAdminOrReadOnly
