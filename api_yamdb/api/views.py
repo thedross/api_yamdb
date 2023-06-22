@@ -3,6 +3,7 @@ from rest_framework import (
     filters,
     permissions,
     viewsets,
+    mixins
 )
 from rest_framework.pagination import PageNumberPagination
 
@@ -26,15 +27,21 @@ from api.permissions import (
 )
 
 
-class BaseViewSet(viewsets.ModelViewSet):
+class BaseViewSet(mixins.CreateModelMixin,
+                  mixins.ListModelMixin,
+                  mixins.DestroyModelMixin,
+                  viewsets.GenericViewSet):
     """
     Базовый вьюсет для GenresViewSet и CategoriesViewSet.
     """
     permission_classes = (
         permissions.IsAuthenticatedOrReadOnly,
-        IsSuperOrAdminOrReadOnly)
+        IsSuperOrAdminOrReadOnly,
+    )
     filter_backends = (filters.SearchFilter, )
+    pagination_class = PageNumberPagination
     search_fields = ('name', )
+    lookup_field = 'slug'
 
 
 class GenresViewSet(BaseViewSet):
@@ -63,7 +70,10 @@ class TitlesViewSet(viewsets.ModelViewSet):
         'genre'
     )
     serializer_class = TitleSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+    permission_classes = (
+        permissions.IsAuthenticatedOrReadOnly,
+        IsSuperOrAdminOrReadOnly
+    )
 
 # Рейтинг для произведений TitleViewSet
 # from django.db.models import Avg - импорт

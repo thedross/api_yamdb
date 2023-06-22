@@ -1,4 +1,4 @@
-from rest_framework.permissions import SAFE_METHODS, IsAuthenticatedOrReadOnly
+from rest_framework import permissions 
 
 """
 Для остальных случаев ставим пермишен на уровне проекта
@@ -7,21 +7,27 @@ IsAuthenticatesOrReadOnly, где необходимо
 """
 
 
-class IsSuperOrAdminOrReadOnly(IsAuthenticatedOrReadOnly):
+class IsSuperOrAdminOrReadOnly(permissions.IsAuthenticatedOrReadOnly):
     """
     Разрешения для роли админ.
     Суперюзер - всегда админ, даже если изменить роль.
     """
     def has_permission(self, request, view):
-        return (request.user.is_authenticated
-                and (request.user.is_admin or request.user.is_superuser))
+        return (
+            view.action == 'list'
+            or request.user.is_authenticated
+            and (request.user.is_admin or request.user.is_superuser)
+        )
 
     def has_object_permission(self, request, view, obj):
-        return (obj == request.user or request.user.is_admin
-                or request.user.is_superuser)
+        return (
+            request.method in permissions.SAFE_METHODS
+            or request.user.is_admin
+            or request.user.is_superuser
+        )
 
 
-class IsAuthorOrModeratorOrReadOnly(IsAuthenticatedOrReadOnly):
+class IsAuthorOrModeratorOrReadOnly(permissions.IsAuthenticatedOrReadOnly):
     """
     Разрешения уровня модератор и автора.
     Автор может редактировать свой контент.
@@ -29,7 +35,7 @@ class IsAuthorOrModeratorOrReadOnly(IsAuthenticatedOrReadOnly):
 
     def has_object_permission(self, request, view, obj):
         return (
-            request.method in SAFE_METHODS
+            request.method in permissions.SAFE_METHODS
             or (
                 request.user.is_authenticated
                 and (
