@@ -20,13 +20,19 @@ from api.serializers import (
     ReviewSerializer,
     CommentSerializer,
 )
+from api.permissions import (
+    IsAuthorOrModeratorOrReadOnly,
+    IsSuperOrAdminOrReadOnly
+)
 
 
 class BaseViewSet(viewsets.ModelViewSet):
     """
     Базовый вьюсет для GenresViewSet и CategoriesViewSet.
     """
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+    permission_classes = (
+        permissions.IsAuthenticatedOrReadOnly,
+        IsSuperOrAdminOrReadOnly)
     filter_backends = (filters.SearchFilter, )
     search_fields = ('name', )
 

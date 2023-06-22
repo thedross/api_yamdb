@@ -1,8 +1,8 @@
 from django.contrib.auth import get_user_model
-
+from django.core.validators import RegexValidator
 from rest_framework import serializers
 
-# from users.validators import
+from users.validators import validate_username
 
 User = get_user_model()
 
@@ -32,16 +32,36 @@ class CreateUserSerializer(serializers.ModelSerializer):
         fields = ('username', 'email')
 
 
+class GetCodeSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор модели User для повторного получения кода.
+    """
+    class Meta:
+        model = User
+        fields = ('username', 'email')
+        extra_kwargs = {
+            'username': {
+                'validators': [
+                    RegexValidator(
+                        regex='^[\\w-]+$',
+                        message='Ник содержит недопустимые символы.'
+                    ),
+                    validate_username
+                ]
+            },
+            'email': {
+                'validators': []
+            }
+        }
+
+
 class TokenObtainSerializer(serializers.Serializer):
     """
     Сериализатор для получения токена.
     """
     user = serializers.SlugRelatedField(
         queryset=User.objects.all(),
-        slug_field='username'
+        slug_field='username',
     )
 
     confirmation_code = serializers.CharField()
-
-    def validate_user(self, value):
-        return value
