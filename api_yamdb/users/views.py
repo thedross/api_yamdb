@@ -8,9 +8,14 @@ from rest_framework import (
     viewsets,
     permissions,
 )
+from django.shortcuts import get_object_or_404
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
+from api.permissions import (
+    IsSuperOrAdmin
+)
 from users.serializers import (
     CreateUserSerializer,
     GetCodeSerializer,
@@ -30,6 +35,32 @@ class UsersViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     filter_backends = (filters.SearchFilter, )
     search_fields = ('username', )
+    permission_classes = (
+        permissions.IsAuthenticated,
+        IsSuperOrAdmin
+    )
+    lookup_field = "username"
+    http_method_names = ['get', 'post', 'head', 'patch', 'delete']
+
+    @action(
+        detail=False,
+        methods=['get', 'head', 'patch'],
+        permission_classes=(permissions.IsAuthenticated, )
+    )
+    def me(self, request, *args, **kwargs):
+        User = get_user_model()
+        self.object = get_object_or_404(User, pk=request.user.id)
+        if request.method == 'GET':
+            serializer = self.get_serializer(self.object)
+            return Response(serializer.data)
+        serializer = self.get_serializer(data=request.data, partial=True)
+        serializer.instance = self.object
+        serializer.is_valid(raise_exception=True)
+        serializer.save(
+            instance=self.object,
+            role=self.object.role
+        )
+        return Response(serializer.validated_data)
 
 
 class CreateUserView(generics.GenericAPIView):
@@ -90,7 +121,10 @@ class TokenObtainView(generics.GenericAPIView):
         if default_token_generator.check_token(user, confirmation_code):
             user.is_active = True
             token = AccessToken.for_user(user)
-            return Response(str(token))
+            return Response(
+                str(token),
+                status=status.HTTP_200_OK
+            )
         return Response(
             "Неверный код подтверждения.",
             status=status.HTTP_400_BAD_REQUEST

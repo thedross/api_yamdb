@@ -9,7 +9,7 @@ IsAuthenticatesOrReadOnly, где необходимо
 LIST_ONLY_VIEWS = ('categories', 'genres')
 
 
-class IsSuperOrAdminOrReadOnly(permissions.IsAuthenticatedOrReadOnly):
+class IsSuperOrAdminOrReadOnly(permissions.BasePermission):
     """
     Разрешения для роли админ.
     Суперюзер - всегда админ, даже если изменить роль.
@@ -18,16 +18,9 @@ class IsSuperOrAdminOrReadOnly(permissions.IsAuthenticatedOrReadOnly):
         if view.basename in LIST_ONLY_VIEWS:
             return (
                 view.action == 'list'
-                or request.user.is_authenticated
-                and (request.user.is_admin or request.user.is_superuser)
+                or request.user.is_admin
+                or request.user.is_superuser
             )
-        return (
-            request.method in permissions.SAFE_METHODS
-            or request.user.is_authenticated
-            and (request.user.is_admin or request.user.is_superuser)
-        )
-
-    def has_object_permission(self, request, view, obj):
         return (
             request.method in permissions.SAFE_METHODS
             or request.user.is_admin
@@ -35,7 +28,7 @@ class IsSuperOrAdminOrReadOnly(permissions.IsAuthenticatedOrReadOnly):
         )
 
 
-class IsAuthorOrModeratorOrReadOnly(permissions.IsAuthenticatedOrReadOnly):
+class IsAuthorOrModeratorOrReadOnly(permissions.BasePermission):
     """
     Разрешения уровня модератор и автора.
     Автор может редактировать свой контент.
@@ -47,4 +40,14 @@ class IsAuthorOrModeratorOrReadOnly(permissions.IsAuthenticatedOrReadOnly):
             or obj.author == request.user
             or request.user.is_moderator
             or request.user.is_admin
+        )
+
+
+class IsSuperOrAdmin(permissions.BasePermission):
+    """
+    Разрешение уровня администратора и суперюзера.
+    """
+    def has_permission(self, request, view):
+        return (
+            request.user.is_admin or request.user.is_superuser
         )

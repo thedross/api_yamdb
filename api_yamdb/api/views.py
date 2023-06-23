@@ -131,7 +131,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
         )
 
     def get_queryset(self):
-        return self.get_current_title().reviews.all().order_by('pub_date')
+        return self.get_current_title().reviews.all().order_by('-pub_date')
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -157,4 +157,4 @@ class CommentViewSet(viewsets.ModelViewSet):
         )
 
     def get_queryset(self):
-        return self.get_current_review().comments.all()
+        return self.get_current_review().comments.all().order_by('-pub_date')
