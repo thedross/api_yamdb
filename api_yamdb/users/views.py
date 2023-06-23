@@ -41,7 +41,7 @@ class CreateUserView(generics.GenericAPIView):
     permission_classes = (permissions.AllowAny, )
 
     def post(self, request, *args, **kwargs):
-        serializer = GetCodeSerializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         try:
             user = User.objects.get(
