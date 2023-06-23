@@ -134,7 +134,7 @@ class Review(models.Model):
         Title,
         verbose_name='Произведение(тайтл)',
         on_delete=models.CASCADE,
-        related_name='titles_review'
+        related_name='reviews'
     )
     author = models.ForeignKey(
         User,
@@ -146,7 +146,8 @@ class Review(models.Model):
     )
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
-        auto_now_add=True
+        auto_now_add=True,
+        db_index=True
     )
 
     score = models.IntegerField(
@@ -180,8 +181,6 @@ class Comment(models.Model):
     text - текст комментария
     pub_date - дата публикации комментария
     """
-
-
     review = models.ForeignKey(
         Review,
         verbose_name='Комментируемый отзыв',
@@ -200,6 +199,7 @@ class Comment(models.Model):
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
         auto_now_add=True,
+        db_index=True
     )
 
     class Meta:

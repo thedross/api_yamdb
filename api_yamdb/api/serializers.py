@@ -10,22 +10,13 @@ from titles.models import (
 )
 
 
-class TitleSerializer(serializers.ModelSerializer):
-    """
-    Сериализатор модели Title.
-    """
-    class Meta:
-        model = Title
-        fields = '__all__'
-
-
 class GenreSerializer(serializers.ModelSerializer):
     """
     Сериализатор модели Genre.
     """
     class Meta:
         model = Genre
-        fields = '__all__'
+        fields = ('name', 'slug')
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -34,7 +25,38 @@ class CategorySerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = Category
-        fields = '__all__'
+        fields = ('name', 'slug')
+
+
+class TitleSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор модели Title.
+    """
+    genre = GenreSerializer(many=True)
+    category = CategorySerializer()
+
+    class Meta:
+        model = Title
+        exclude = ('rating', )
+
+
+class TitleCreateSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для содания модели Title.
+    """
+    genre = SlugRelatedField(
+        queryset=Genre.objects.all(),
+        slug_field='slug',
+        many=True
+    )
+    category = SlugRelatedField(
+        queryset=Category.objects.all(),
+        slug_field='slug',
+    )
+
+    class Meta:
+        model = Title
+        exclude = ('rating', )
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -44,6 +66,10 @@ class ReviewSerializer(serializers.ModelSerializer):
     author = SlugRelatedField(
         slug_field='username',
         read_only=True
+    )
+    title = serializers.SlugRelatedField(
+        slug_field='name',
+        read_only=True,
     )
 
     class Meta:
@@ -58,6 +84,10 @@ class CommentSerializer(serializers.ModelSerializer):
     """
     author = SlugRelatedField(
         slug_field='username',
+        read_only=True
+    )
+    review = serializers.SlugRelatedField(
+        slug_field='text',
         read_only=True
     )
 
