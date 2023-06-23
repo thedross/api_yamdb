@@ -41,39 +41,32 @@ class CreateUserView(generics.GenericAPIView):
     permission_classes = (permissions.AllowAny, )
 
     def post(self, request, *args, **kwargs):
-        serializer_get = GetCodeSerializer(data=request.data)
-        if serializer_get.is_valid(raise_exception=True):
-            try:
-                user = User.objects.get(
-                    email=serializer_get.validated_data.get('email')
+        serializer = GetCodeSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            user = User.objects.get(
+                email=serializer.validated_data.get('email')
+            )
+            if user.username != serializer.validated_data.get('username'):
+                return Response(
+                    serializer.validated_data,
+                    status=status.HTTP_400_BAD_REQUEST
                 )
-                if user.username != serializer_get.validated_data.get('username'):
-                    return Response(
-                        serializer_get.validated_data,
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
-            except ObjectDoesNotExist:
-                serializer_create = CreateUserSerializer(data=request.data)
-                if serializer_create.is_valid():
-                    serializer_create.save(is_active=False)
-                    send_email_comfirmation_code(
-                        serializer_create.validated_data.get('email')
-                    )
-                    return Response(
-                        serializer_create.validated_data,
-                        status=status.HTTP_200_OK
-                    )
+        except ObjectDoesNotExist:
+            serializer = CreateUserSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save(is_active=False)
         try:
             send_email_comfirmation_code(
-                serializer_get.validated_data.get('email')
+                serializer.validated_data.get('email')
             )
         except ObjectDoesNotExist:
             return Response(
-                serializer_create.validated_data,
+                serializer.validated_data,
                 status=status.HTTP_400_BAD_REQUEST
             )
         return Response(
-            serializer_get.validated_data,
+            serializer.validated_data,
             status=status.HTTP_200_OK
         )
 
