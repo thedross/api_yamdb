@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, RegexValidator
 from django.db import models
 
-from titles.constants import (
+from reviews.constants import (
     DEFAULT_NAME_LENGTH,
     DEFAULT_SLUG_LENGTH,
     SCORE_CHOICES,
@@ -104,11 +104,6 @@ class Title(models.Model):
         verbose_name='Жанр',
         related_name='genres',
     )
-    rating = models.IntegerField(
-        verbose_name='Рейтинг произведения',
-        null=True,
-        default=None,
-    )
 
     class Meta:
         verbose_name = 'Тайтл'
@@ -134,7 +129,7 @@ class Review(models.Model):
         Title,
         verbose_name='Произведение(тайтл)',
         on_delete=models.CASCADE,
-        related_name='titles_review'
+        related_name='reviews'
     )
     author = models.ForeignKey(
         User,
@@ -146,7 +141,8 @@ class Review(models.Model):
     )
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
-        auto_now_add=True
+        auto_now_add=True,
+        db_index=True
     )
 
     score = models.IntegerField(
@@ -180,8 +176,6 @@ class Comment(models.Model):
     text - текст комментария
     pub_date - дата публикации комментария
     """
-
-
     review = models.ForeignKey(
         Review,
         verbose_name='Комментируемый отзыв',
@@ -200,6 +194,7 @@ class Comment(models.Model):
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
         auto_now_add=True,
+        db_index=True
     )
 
     class Meta:
