@@ -96,12 +96,10 @@ class ReviewViewSet(viewsets.ModelViewSet):
     """
     serializer_class = ReviewSerializer
     permission_classes = [
-        permissions.IsAuthenticatedOrReadOnly
+        IsAuthorOrModeratorOrReadOnly
     ]
-    pagination_class = [PageNumberPagination]
     default_ordering = '-pub_date'
 
-    # Функция для получение заданного произведения
     def get_current_title(self):
         return get_object_or_404(
             Title, id=self.kwargs.get('title_id')
@@ -114,7 +112,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
         )
 
     def get_queryset(self):
-        return self.get_current_title().titles_review.all()
+        return self.get_current_title().reviews.all()
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -123,12 +121,10 @@ class CommentViewSet(viewsets.ModelViewSet):
     """
     serializer_class = CommentSerializer
     permission_classes = [
-        permissions.IsAuthenticatedOrReadOnly
+        IsAuthorOrModeratorOrReadOnly
     ]
-    pagination_class = [PageNumberPagination]
     default_ordering = '-pub_date'
 
-    # Функция для получение заданного отзыва
     def get_current_review(self):
         return get_object_or_404(
             Review, id=self.kwargs.get('review_id')
@@ -141,4 +137,4 @@ class CommentViewSet(viewsets.ModelViewSet):
         )
 
     def get_queryset(self):
-        return self.get_current_post().comments.all()
+        return self.get_current_review().comments.all()

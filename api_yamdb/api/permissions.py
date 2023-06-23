@@ -49,6 +49,7 @@ class IsAuthorOrModeratorOrReadOnly(permissions.IsAuthenticatedOrReadOnly):
                 and (
                     obj.author == request.user
                     or request.user.is_moderator
+                    or request.user.is_admin
                 )
             )
         )

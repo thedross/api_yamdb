@@ -67,6 +67,10 @@ class ReviewSerializer(serializers.ModelSerializer):
         slug_field='username',
         read_only=True
     )
+    title = serializers.SlugRelatedField(
+        slug_field='name',
+        read_only=True,
+    )
 
     class Meta:
         model = Review
@@ -80,6 +84,10 @@ class CommentSerializer(serializers.ModelSerializer):
     """
     author = SlugRelatedField(
         slug_field='username',
+        read_only=True
+    )
+    review = serializers.SlugRelatedField(
+        slug_field='text',
         read_only=True
     )
 
