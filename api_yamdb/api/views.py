@@ -24,7 +24,7 @@ from api.permissions import (
     IsAuthorOrModeratorOrReadOnly,
     IsSuperOrAdminOrReadOnly
 )
-from titles.models import (
+from reviews.models import (
     Category,
     Genre,
     Review,
@@ -76,8 +76,8 @@ class TitlesViewSet(viewsets.ModelViewSet):
     ).order_by(
         'name'
     ).annotate(
-        raiting=Avg('reviews__score')
-    )
+        rating=Avg('reviews__score')
+    ).order_by('name')
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend, )
     filterset_class = TitleFilterSet
@@ -100,6 +100,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = [
         permissions.IsAuthenticatedOrReadOnly,
+        IsAuthorOrModeratorOrReadOnly
     ]
     default_ordering = '-pub_date'
 
@@ -130,7 +131,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
         )
 
     def get_queryset(self):
-        return self.get_current_title().reviews.all()
+        return self.get_current_title().reviews.all().order_by('pub_date')
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -139,6 +140,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     """
     serializer_class = CommentSerializer
     permission_classes = [
+        permissions.IsAuthenticatedOrReadOnly,
         IsAuthorOrModeratorOrReadOnly
     ]
     default_ordering = '-pub_date'

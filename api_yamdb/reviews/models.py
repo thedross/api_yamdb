@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, RegexValidator
 from django.db import models
 
-from titles.constants import (
+from reviews.constants import (
     DEFAULT_NAME_LENGTH,
     DEFAULT_SLUG_LENGTH,
     SCORE_CHOICES,

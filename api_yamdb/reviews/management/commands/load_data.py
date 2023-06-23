@@ -13,7 +13,7 @@ class Command(BaseCommand):
     APP_FILES_TABLES = (
         ('users', ('users', ), ('customuser', )),
         (
-            'titles',
+            'reviews',
             (
                 'genre',
                 'category',

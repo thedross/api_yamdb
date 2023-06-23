@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 
-from titles.models import (
+from reviews.models import (
     Title,
     Genre,
     Category,
@@ -34,7 +34,7 @@ class TitleSerializer(serializers.ModelSerializer):
     """
     genre = GenreSerializer(many=True)
     category = CategorySerializer()
-    raiting = serializers.IntegerField()
+    rating = serializers.IntegerField()
 
     class Meta:
         model = Title
