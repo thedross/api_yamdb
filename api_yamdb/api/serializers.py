@@ -2,11 +2,11 @@ from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 
 from reviews.models import (
-    Title,
-    Genre,
     Category,
-    Review,
     Comment,
+    Genre,
+    Review,
+    Title,
 )
 
 

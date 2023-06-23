@@ -2,11 +2,11 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from rest_framework import (
-    status,
     filters,
     generics,
-    viewsets,
     permissions,
+    status,
+    viewsets,
 )
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
@@ -19,8 +19,8 @@ from api.permissions import (
 from users.serializers import (
     CreateUserSerializer,
     GetCodeSerializer,
+    TokenObtainSerializer,
     UserSerializer,
-    TokenObtainSerializer
 )
 from users.utils import send_email_comfirmation_code
 

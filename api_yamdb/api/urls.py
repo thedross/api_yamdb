@@ -3,11 +3,11 @@ from rest_framework.routers import DefaultRouter
 
 
 from api.views import (
-    TitlesViewSet,
-    GenresViewSet,
     CategoriesViewSet,
     CommentViewSet,
+    GenresViewSet,
     ReviewViewSet,
+    TitlesViewSet,
 )
 from users.views import UsersViewSet, CreateUserView, TokenObtainView
 
