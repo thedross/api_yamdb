@@ -1,12 +1,15 @@
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import (
+    status,
     filters,
     mixins,
     permissions,
     viewsets,
 )
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
 
 from api.filters import TitleFilterSet
 from api.serializers import (
@@ -70,7 +73,11 @@ class TitlesViewSet(viewsets.ModelViewSet):
         'category'
     ).prefetch_related(
         'genre'
-    ).order_by('name')
+    ).order_by(
+        'name'
+    ).annotate(
+        raiting=Avg('reviews__score')
+    )
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend, )
     filterset_class = TitleFilterSet
@@ -85,10 +92,6 @@ class TitlesViewSet(viewsets.ModelViewSet):
             return TitleCreateSerializer
         return TitleSerializer
 
-# Рейтинг для произведений TitleViewSet
-# from django.db.models import Avg - импорт
-# queryset = Title.objects.all().annotate(Avg('titles_review__score')
-
 
 class ReviewViewSet(viewsets.ModelViewSet):
     """
@@ -96,7 +99,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     """
     serializer_class = ReviewSerializer
     permission_classes = [
-        IsAuthorOrModeratorOrReadOnly
+        permissions.IsAuthenticatedOrReadOnly,
     ]
     default_ordering = '-pub_date'
 
@@ -105,10 +108,25 @@ class ReviewViewSet(viewsets.ModelViewSet):
             Title, id=self.kwargs.get('title_id')
         )
 
-    def perform_create(self, serializer):
-        serializer.save(
-            author=self.request.user,
-            title=self.get_current_title()
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        author = request.user
+        title = self.get_current_title()
+        headers = self.get_success_headers(serializer.validated_data)
+        if not title.reviews.filter(author=author):
+            serializer.save(
+                author=author,
+                title=title
+            )
+            return Response(
+                serializer.data,
+                status=status.HTTP_201_CREATED,
+                headers=headers
+            )
+        return Response(
+            "Вы уже написали отзыв к этому произведению.",
+            status=status.HTTP_400_BAD_REQUEST
         )
 
     def get_queryset(self):

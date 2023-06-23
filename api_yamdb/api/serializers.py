@@ -34,10 +34,11 @@ class TitleSerializer(serializers.ModelSerializer):
     """
     genre = GenreSerializer(many=True)
     category = CategorySerializer()
+    raiting = serializers.IntegerField()
 
     class Meta:
         model = Title
-        exclude = ('rating', )
+        fields = '__all__'
 
 
 class TitleCreateSerializer(serializers.ModelSerializer):
@@ -56,7 +57,7 @@ class TitleCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        exclude = ('rating', )
+        fields = '__all__'
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -67,15 +68,13 @@ class ReviewSerializer(serializers.ModelSerializer):
         slug_field='username',
         read_only=True
     )
-    title = serializers.SlugRelatedField(
-        slug_field='name',
+    title = serializers.PrimaryKeyRelatedField(
         read_only=True,
     )
 
     class Meta:
         model = Review
         fields = '__all__'
-        read_only_fields = ('title',)
 
 
 class CommentSerializer(serializers.ModelSerializer):
