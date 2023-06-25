@@ -2,7 +2,7 @@
 
 Проект выполнен командой из трёх человек:
 
-## [Михаил](https://github.com/khekhnev)
+## [Максим](https://github.com/khekhnev)
 
 ## [Ирина](https://github.com/alicezweig)
 
