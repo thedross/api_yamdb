@@ -1,13 +1,10 @@
-from django.contrib.auth import get_user_model
-from django.core.validators import RegexValidator
 from rest_framework import serializers
 
-from users.validators import validate_username
+from users.models import CustomUser as User
+from .mixins import ValidateUsernameMixin
 
-User = get_user_model()
 
-
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer, ValidateUsernameMixin):
     """
     Сериализатор модели User.
     """
@@ -23,7 +20,7 @@ class UserSerializer(serializers.ModelSerializer):
         )
 
 
-class CreateUserSerializer(serializers.ModelSerializer):
+class CreateUserSerializer(serializers.ModelSerializer, ValidateUsernameMixin):
     """
     Сериализатор модели User для регистрации.
     """
@@ -31,31 +28,34 @@ class CreateUserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('username', 'email')
 
+    def validate(self, data):
+        """
+        В случае полного совпадения емайл и юсернейма валидация пройдет,
+        как раз на случай, если пользователь повторно запросит
+        код подтверждения на почту.
+        В случае частичного совпадения - нет.
+        """
+        username = data.get('username')
+        email = data.get('email')
 
-class GetCodeSerializer(serializers.ModelSerializer):
-    """
-    Сериализатор модели User для повторного получения кода.
-    """
-    class Meta:
-        model = User
-        fields = ('username', 'email')
-        extra_kwargs = {
-            'username': {
-                'validators': [
-                    RegexValidator(
-                        regex='^[\\w-]+$',
-                        message='Ник содержит недопустимые символы.'
-                    ),
-                    validate_username
-                ]
-            },
-            'email': {
-                'validators': []
-            }
-        }
+        if not User.objects.filter(username=username, email=email).exists():
+            if (User.objects.filter(username=username).exists()
+               or User.objects.filter(email=email).exists()):
+                raise serializers.ValidationError(
+                    'Пользователь с таким емайл или ником существует'
+                )
+        return data
+
+    def create(self, validated_data):
+        user, created = User.objects.get_or_create(**validated_data)
+
+        if created:
+            return user
+
+        return validated_data
 
 
-class TokenObtainSerializer(serializers.Serializer):
+class TokenObtainSerializer(serializers.Serializer, ValidateUsernameMixin):
     """
     Сериализатор для получения токена.
     """
