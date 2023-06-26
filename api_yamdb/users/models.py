@@ -49,7 +49,7 @@ class CustomUser(AbstractUser):
 
     @property
     def is_admin(self):
-        return self.role == (const.ADMIN or self.is_staff or self.is_superuser)
+        return (self.role == const.ADMIN) or self.is_staff or self.is_superuser
 
     class Meta:
         ordering = ('email', 'username',)

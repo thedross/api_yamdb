@@ -1,7 +1,5 @@
-from datetime import date
-
 from django.contrib.auth import get_user_model
-from django.core.validators import MaxValueValidator, RegexValidator
+from django.core.validators import MaxValueValidator
 from django.db import models
 
 from reviews.constants import (
@@ -10,11 +8,13 @@ from reviews.constants import (
     SCORE_CHOICES,
     TEXT_UPPER_BOUND,
 )
+from reviews.utils import get_current_year
+
 
 User = get_user_model()
 
 
-class CustomBaseModel(models.Model):
+class NameSlugBaseModel(models.Model):
     """
     Базовый класс для классов жанра и категории.
 
@@ -27,16 +27,10 @@ class CustomBaseModel(models.Model):
         'Название',
         max_length=DEFAULT_NAME_LENGTH
     )
-    slug = models.CharField(
+    slug = models.SlugField(
         'Слаг',
         max_length=DEFAULT_SLUG_LENGTH,
         unique=True,
-        validators=[
-            RegexValidator(
-                regex='^[-a-zA-Z0-9_]+$',
-                message='Слаг содержит недопустимые символы.'
-            )
-        ]
     )
 
     def __str__(self):
@@ -47,20 +41,20 @@ class CustomBaseModel(models.Model):
         ordering = ('name', )
 
 
-class Genre(CustomBaseModel):
+class Genre(NameSlugBaseModel):
     """
     Класс жанра.
     """
-    class Meta(CustomBaseModel.Meta):
+    class Meta(NameSlugBaseModel.Meta):
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
 
 
-class Category(CustomBaseModel):
+class Category(NameSlugBaseModel):
     """
     Класс категории.
     """
-    class Meta(CustomBaseModel.Meta):
+    class Meta(NameSlugBaseModel.Meta):
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
@@ -82,15 +76,10 @@ class Title(models.Model):
         'Название',
         max_length=DEFAULT_NAME_LENGTH
     )
-    year = models.IntegerField(
+    year = models.SmallIntegerField(
         'Год выпуска',
-        validators=[
-            MaxValueValidator(
-                limit_value=date.today().year,
-                message='Год выпуска не может быть больше текущего года.'
-            )
-        ]
-    )
+        db_index=True,
+        validators=[MaxValueValidator(get_current_year)])
     description = models.TextField('Описание', blank=True)
     category = models.ForeignKey(
         'Category',
@@ -108,6 +97,7 @@ class Title(models.Model):
     class Meta:
         verbose_name = 'Тайтл'
         verbose_name_plural = 'Тайтлы'
+        ordering = ('name', )
 
     def __str__(self):
         return self.name + ', ' + str(self.year)
@@ -145,7 +135,7 @@ class Review(models.Model):
         db_index=True
     )
 
-    score = models.IntegerField(
+    score = models.SmallIntegerField(
         verbose_name='Оценка пользователя',
         choices=SCORE_CHOICES,
     )

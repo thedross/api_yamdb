@@ -53,7 +53,7 @@ class GenresViewSet(BaseViewSet):
     """
     Вью-сет моделей Genre.
     """
-    queryset = Genre.objects.all().order_by('name')
+    queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 
 
@@ -61,7 +61,7 @@ class CategoriesViewSet(BaseViewSet):
     """
     Вью-сет моделей Category.
     """
-    queryset = Category.objects.all().order_by('name')
+    queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
 
@@ -77,7 +77,7 @@ class TitlesViewSet(viewsets.ModelViewSet):
         'name'
     ).annotate(
         rating=Avg('reviews__score')
-    ).order_by('name')
+    )
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend, )
     filterset_class = TitleFilterSet

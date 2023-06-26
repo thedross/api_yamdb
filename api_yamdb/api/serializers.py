@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.core.validators import MaxValueValidator
 from rest_framework.relations import SlugRelatedField
 
 from reviews.models import (
@@ -8,6 +9,7 @@ from reviews.models import (
     Review,
     Title,
 )
+from reviews.utils import get_current_year
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -46,18 +48,40 @@ class TitleCreateSerializer(serializers.ModelSerializer):
     Сериализатор для содания модели Title.
     """
     genre = SlugRelatedField(
+        label='Жанры',
         queryset=Genre.objects.all(),
         slug_field='slug',
         many=True
     )
     category = SlugRelatedField(
+        label='Категория',
         queryset=Category.objects.all(),
         slug_field='slug',
+    )
+    year = serializers.IntegerField(
+        label='Год выпуска',
+        validators=[
+            MaxValueValidator(
+                limit_value=get_current_year,
+                message='Год выпуска не может быть больше текущего года.'
+            )
+        ]
     )
 
     class Meta:
         model = Title
         fields = '__all__'
+
+    def validate_genre(self, genre):
+        if not genre:
+            raise serializers.ValidationError("Добавьте хотя бы один жанр.")
+        return genre
+
+    def to_representation(self, instance):
+        if not hasattr(instance, 'rating'):
+            instance.rating = 0
+        serializer = TitleSerializer(instance)
+        return serializer.data
 
 
 class ReviewSerializer(serializers.ModelSerializer):

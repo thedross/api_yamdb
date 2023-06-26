@@ -1,6 +1,9 @@
 from django.contrib import admin
+from django.contrib.auth.models import Group
 
 from .models import Category, Comment, Genre, Review, Title
+
+admin.site.unregister(Group)
 
 
 @admin.register(Category)
@@ -35,7 +38,10 @@ class ReviewAdmin(admin.ModelAdmin):
 
 @admin.register(Title)
 class TitleAdmin(admin.ModelAdmin):
-    list_display = ('name', 'year', 'description', 'category')
+    list_display = ('name', 'year', 'description', 'category', 'genres')
     search_fields = ('name', )
     list_filter = ('category', )
     empty_value_display = '-пусто-'
+
+    def genres(self, obj):
+        return [genre.name for genre in obj.genre.all()]
