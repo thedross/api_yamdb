@@ -3,15 +3,16 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import (
     filters,
-    mixins,
     permissions,
-    status,
     viewsets,
 )
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.response import Response
 
 from api.filters import TitleFilterSet
+from api.permissions import (
+    IsAuthorOrModeratorOrReadOnly,
+    IsSuperOrAdminOrReadOnly
+)
 from api.serializers import (
     CategorySerializer,
     CommentSerializer,
@@ -20,10 +21,7 @@ from api.serializers import (
     TitleCreateSerializer,
     TitleSerializer,
 )
-from api.permissions import (
-    IsAuthorOrModeratorOrReadOnly,
-    IsSuperOrAdminOrReadOnly
-)
+from api.mixins import CreateListDestroyViewSet
 from reviews.models import (
     Category,
     Genre,
@@ -32,24 +30,7 @@ from reviews.models import (
 )
 
 
-class BaseViewSet(mixins.CreateModelMixin,
-                  mixins.ListModelMixin,
-                  mixins.DestroyModelMixin,
-                  viewsets.GenericViewSet):
-    """
-    Базовый вьюсет для GenresViewSet и CategoriesViewSet.
-    """
-    permission_classes = (
-        permissions.IsAuthenticatedOrReadOnly,
-        IsSuperOrAdminOrReadOnly,
-    )
-    filter_backends = (filters.SearchFilter, )
-    pagination_class = PageNumberPagination
-    search_fields = ('name', )
-    lookup_field = 'slug'
-
-
-class GenresViewSet(BaseViewSet):
+class GenresViewSet(CreateListDestroyViewSet):
     """
     Вью-сет моделей Genre.
     """
@@ -57,7 +38,7 @@ class GenresViewSet(BaseViewSet):
     serializer_class = GenreSerializer
 
 
-class CategoriesViewSet(BaseViewSet):
+class CategoriesViewSet(CreateListDestroyViewSet):
     """
     Вью-сет моделей Category.
     """
@@ -79,7 +60,8 @@ class TitlesViewSet(viewsets.ModelViewSet):
         rating=Avg('reviews__score')
     )
     serializer_class = TitleSerializer
-    filter_backends = (DjangoFilterBackend, )
+    filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
+    ordering_fields = ('year', 'name', 'category')
     filterset_class = TitleFilterSet
     pagination_class = PageNumberPagination
     permission_classes = (
@@ -109,29 +91,14 @@ class ReviewViewSet(viewsets.ModelViewSet):
             Title, id=self.kwargs.get('title_id')
         )
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        author = request.user
-        title = self.get_current_title()
-        headers = self.get_success_headers(serializer.validated_data)
-        if not title.reviews.filter(author=author):
-            serializer.save(
-                author=author,
-                title=title
-            )
-            return Response(
-                serializer.data,
-                status=status.HTTP_201_CREATED,
-                headers=headers
-            )
-        return Response(
-            "Вы уже написали отзыв к этому произведению.",
-            status=status.HTTP_400_BAD_REQUEST
+    def perform_create(self, serializer):
+        return serializer.save(
+            author=self.request.user,
+            title=self.get_current_title()
         )
 
     def get_queryset(self):
-        return self.get_current_title().reviews.all().order_by('-pub_date')
+        return self.get_current_title().reviews.all()
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -157,4 +124,4 @@ class CommentViewSet(viewsets.ModelViewSet):
         )
 
     def get_queryset(self):
-        return self.get_current_review().comments.all().order_by('-pub_date')
+        return self.get_current_review().comments.all()

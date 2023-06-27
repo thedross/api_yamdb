@@ -1,5 +1,4 @@
 from django.contrib.auth.tokens import default_token_generator
-from django.shortcuts import get_object_or_404
 from rest_framework import (
     filters,
     generics,
@@ -88,17 +87,23 @@ class TokenObtainView(generics.GenericAPIView):
     permission_classes = (permissions.AllowAny, )
 
     def post(self, request, *args, **kwargs):
-        user = get_object_or_404(User, email=self.request.data.get('email'))
-        confirmation_code = request.data.get('confirmation_code')
-        if default_token_generator.check_token(user, confirmation_code):
+        user = User.objects.filter(username=self.request.data.get('user'))
+        if not user.exists():
+            return Response(
+                {'username': 'Пользователь с таким ником не найден.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        if default_token_generator.check_token(
+            user=user,
+            token=request.data.get('confirmation_code')
+        ):
             user.is_active = True
             user.save()
-            token = AccessToken.for_user(user)
             return Response(
-                str(token),
+                f'Ваш токен: {str(AccessToken.for_user(user))}',
                 status=status.HTTP_200_OK
             )
         return Response(
-            "Неверный код подтверждения.",
+            {'confirmation_code': 'Неверный код подтверждения.'},
             status=status.HTTP_400_BAD_REQUEST
         )

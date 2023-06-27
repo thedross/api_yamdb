@@ -92,13 +92,20 @@ class ReviewSerializer(serializers.ModelSerializer):
         slug_field='username',
         read_only=True
     )
-    title = serializers.PrimaryKeyRelatedField(
-        read_only=True,
-    )
 
     class Meta:
         model = Review
-        fields = '__all__'
+        fields = ('id', 'text', 'author', 'score', 'pub_date')
+
+    def create(self, validated_data):
+        if Review.objects.filter(
+            title=validated_data.get('title'),
+            author=validated_data.get('author')
+        ).exists():
+            raise serializers.ValidationError(
+                'Вы уже написали отзыв к этому произведению.'
+            )
+        return super().create(validated_data)
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -109,12 +116,7 @@ class CommentSerializer(serializers.ModelSerializer):
         slug_field='username',
         read_only=True
     )
-    review = serializers.SlugRelatedField(
-        slug_field='text',
-        read_only=True
-    )
 
     class Meta:
         model = Comment
-        fields = '__all__'
-        read_only_fields = ('review',)
+        fields = ('id', 'text', 'author', 'pub_date')
