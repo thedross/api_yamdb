@@ -1,8 +1,7 @@
 import os
 
-from pathlib import Path
-
 from datetime import timedelta
+from pathlib import Path
 
 from api_yamdb.constants import PAGINATION_INDICATOR
 
@@ -115,6 +114,7 @@ REST_FRAMEWORK = {
 
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ],
 
     'DEFAULT_FILTER_BACKENDS': [
@@ -134,3 +134,5 @@ SIMPLE_JWT = {
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
+
+DEFAULT_FROM_EMAIL = 'yamdb@fake.com'

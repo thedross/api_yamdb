@@ -72,7 +72,7 @@ class Command(BaseCommand):
                 csv_path = os.path.join(self.CSV_FOLDER, (file + '.csv'))
                 Model = apps.get_model(app, models[i])
 
-                with open(csv_path, newline='') as csv_file:
+                with open(csv_path, newline='', encoding="utf-8") as csv_file:
                     reader = csv.reader(csv_file, delimiter=',')
                     fields = [
                         field.removesuffix('_id')

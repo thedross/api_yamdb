@@ -1,3 +1,4 @@
+from django.core.validators import MaxValueValidator
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 
@@ -8,6 +9,7 @@ from reviews.models import (
     Review,
     Title,
 )
+from reviews.utils import get_current_year
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -46,18 +48,40 @@ class TitleCreateSerializer(serializers.ModelSerializer):
     Сериализатор для содания модели Title.
     """
     genre = SlugRelatedField(
+        label='Жанры',
         queryset=Genre.objects.all(),
         slug_field='slug',
         many=True
     )
     category = SlugRelatedField(
+        label='Категория',
         queryset=Category.objects.all(),
         slug_field='slug',
+    )
+    year = serializers.IntegerField(
+        label='Год выпуска',
+        validators=[
+            MaxValueValidator(
+                limit_value=get_current_year,
+                message='Год выпуска не может быть больше текущего года.'
+            )
+        ]
     )
 
     class Meta:
         model = Title
         fields = '__all__'
+
+    def validate_genre(self, genre):
+        if not genre:
+            raise serializers.ValidationError("Добавьте хотя бы один жанр.")
+        return genre
+
+    def to_representation(self, instance):
+        if not hasattr(instance, 'rating'):
+            instance.rating = 0
+        serializer = TitleSerializer(instance)
+        return serializer.data
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -68,13 +92,21 @@ class ReviewSerializer(serializers.ModelSerializer):
         slug_field='username',
         read_only=True
     )
-    title = serializers.PrimaryKeyRelatedField(
-        read_only=True,
-    )
 
     class Meta:
         model = Review
         fields = '__all__'
+        read_only_fields = ['title', ]
+
+    def create(self, validated_data):
+        if Review.objects.filter(
+            title=validated_data.get('title'),
+            author=validated_data.get('author')
+        ).exists():
+            raise serializers.ValidationError(
+                'Вы уже написали отзыв к этому произведению.'
+            )
+        return super().create(validated_data)
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -85,12 +117,8 @@ class CommentSerializer(serializers.ModelSerializer):
         slug_field='username',
         read_only=True
     )
-    review = serializers.SlugRelatedField(
-        slug_field='text',
-        read_only=True
-    )
 
     class Meta:
         model = Comment
         fields = '__all__'
-        read_only_fields = ('review',)
+        read_only_fields = ['review', ]
