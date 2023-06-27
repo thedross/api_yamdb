@@ -9,6 +9,7 @@ from rest_framework import (
 from rest_framework.pagination import PageNumberPagination
 
 from api.filters import TitleFilterSet
+from api.mixins import CreateListDestroyViewSet
 from api.permissions import (
     IsAuthorOrModeratorOrReadOnly,
     IsSuperOrAdminOrReadOnly
@@ -21,7 +22,6 @@ from api.serializers import (
     TitleCreateSerializer,
     TitleSerializer,
 )
-from api.mixins import CreateListDestroyViewSet
 from reviews.models import (
     Category,
     Genre,

@@ -1,5 +1,5 @@
-from rest_framework import serializers
 from django.core.validators import MaxValueValidator
+from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 
 from reviews.models import (
@@ -95,7 +95,8 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Review
-        fields = ('id', 'text', 'author', 'score', 'pub_date')
+        fields = '__all__'
+        read_only_fields = ['title', ]
 
     def create(self, validated_data):
         if Review.objects.filter(
@@ -119,4 +120,5 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ('id', 'text', 'author', 'pub_date')
+        fields = '__all__'
+        read_only_fields = ['review', ]
