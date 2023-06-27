@@ -91,7 +91,7 @@ class TokenObtainView(generics.GenericAPIView):
         if not user.exists():
             return Response(
                 {'username': 'Пользователь с таким ником не найден.'},
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_404_NOT_FOUND
             )
         if default_token_generator.check_token(
             user=user,
