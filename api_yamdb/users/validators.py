@@ -2,6 +2,8 @@ import re
 
 from django.core.exceptions import ValidationError
 
+STRING_USERNAME = r'^[\w.@+-]+$'
+
 
 def validate_username(username):
     """
@@ -9,13 +11,15 @@ def validate_username(username):
     Если username НЕ соответствует шаблону, то re.sub вернет True.
     В случае соответствия шаблону re.sub вернет пустую строку, т.е. False.
     """
-    if (re.sub(r'^[\w.@+-]+$', '', username)
-       or username.lower() == 'me'):
+    resub_username = re.sub(STRING_USERNAME, '', ''.join(set(username)))
+
+    if resub_username:
         raise ValidationError(
             f'Ошибка при проверке "{username}" \n'
+            f'введены запрещенные символы: {resub_username}'
             'для имени пользователя можно использовать'
             ' только буквы, цифры и символы _ . @ + - \n'
-            'Нельзя использовать "me".'
         )
-    else:
-        return username
+    if username.lower() == 'me':
+        raise ValidationError('Нельзя использовать "me".')
+    return username

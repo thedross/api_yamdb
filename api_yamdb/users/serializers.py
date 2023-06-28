@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 
 from users.mixins import ValidateUsernameMixin
 from users.models import CustomUser as User
@@ -18,11 +19,17 @@ class UserSerializer(serializers.ModelSerializer, ValidateUsernameMixin):
             'bio',
             'role'
         )
+        validators = [
+            UniqueTogetherValidator(
+                queryset=User.objects.all(),
+                fields=('username', 'email')
+            )
+        ]
 
 
 class CreateUserSerializer(serializers.ModelSerializer, ValidateUsernameMixin):
     """
-    Сериализатор модели User для регистрации.
+    Сериализатор модели User для регистрации и получения кода доступа.
     """
     class Meta:
         model = User

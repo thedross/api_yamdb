@@ -105,7 +105,7 @@ class Title(models.Model):
         'Название',
         max_length=DEFAULT_NAME_LENGTH
     )
-    year = models.SmallIntegerField(
+    year = models.PositiveSmallIntegerField(
         'Год выпуска',
         db_index=True,
         validators=(MaxValueValidator(get_current_year), )
@@ -150,11 +150,17 @@ class Review(AuthorTextPubDateBaseModel):
         verbose_name='Произведение',
         on_delete=models.CASCADE
     )
-    score = models.SmallIntegerField(
+    score = models.PositiveSmallIntegerField(
         verbose_name='Оценка пользователя',
         validators=(
-            MaxValueValidator(SCORE_MAX),
-            MinValueValidator(SCORE_MIN)
+            MaxValueValidator(
+                limit_value=SCORE_MAX,
+                message='Введите число от 1 до 10.'
+            ),
+            MinValueValidator(
+                limit_value=SCORE_MIN,
+                message='Введите число от 1 до 10.'
+            )
         )
     )
 

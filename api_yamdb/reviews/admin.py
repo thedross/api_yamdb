@@ -45,3 +45,5 @@ class TitleAdmin(admin.ModelAdmin):
 
     def genres(self, obj):
         return [genre.name for genre in obj.genre.all()]
+
+    genres.short_description = 'Жанры'

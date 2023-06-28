@@ -33,7 +33,7 @@ class CustomUser(AbstractUser):
     )
     role = models.CharField(
         verbose_name='Роль',
-        max_length=max(len(role[0]) for role in const.CHOICES_ROLE),
+        max_length=max(len(role) for role, verbose_name in const.CHOICES_ROLE),
         choices=const.CHOICES_ROLE,
         default=const.USER,
         blank=True

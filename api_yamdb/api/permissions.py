@@ -6,8 +6,6 @@ from rest_framework import permissions
 IsAuthenticatesOrReadOnly, где необходимо
 """
 
-LIST_ONLY_VIEWS = ('categories', 'genres')
-
 
 class IsSuperOrAdminOrReadOnly(permissions.BasePermission):
     """
@@ -15,11 +13,6 @@ class IsSuperOrAdminOrReadOnly(permissions.BasePermission):
     Суперюзер - всегда админ, даже если изменить роль.
     """
     def has_permission(self, request, view):
-        if view.basename in LIST_ONLY_VIEWS:
-            return (
-                view.action == 'list'
-                or (request.user.is_authenticated and request.user.is_admin)
-            )
         return (
             request.method in permissions.SAFE_METHODS
             or (request.user.is_authenticated and request.user.is_admin)

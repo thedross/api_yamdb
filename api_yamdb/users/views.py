@@ -33,7 +33,7 @@ class UsersViewSet(viewsets.ModelViewSet):
         permissions.IsAuthenticated,
         IsSuperOrAdmin
     )
-    lookup_field = "username"
+    lookup_field = 'username'
     http_method_names = ['get', 'post', 'head', 'patch', 'delete']
 
     @action(
@@ -42,15 +42,14 @@ class UsersViewSet(viewsets.ModelViewSet):
         permission_classes=(permissions.IsAuthenticated, )
     )
     def me(self, request, *args, **kwargs):
-        current_user = User.objects.get(pk=request.user.id)
         if request.method == 'GET':
-            return Response(UserSerializer(current_user).data)
+            return Response(UserSerializer(request.user).data)
         serializer = self.get_serializer(data=request.data, partial=True)
-        serializer.instance = current_user
+        serializer.instance = request.user
         serializer.is_valid(raise_exception=True)
         serializer.save(
-            instance=current_user,
-            role=current_user.role
+            instance=request.user,
+            role=request.user.role
         )
         return Response(serializer.validated_data)
 
@@ -67,7 +66,10 @@ class CreateUserView(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        user = User.objects.get(email=serializer.validated_data.get('email'))
+        user = get_object_or_404(
+            User,
+            email=serializer.validated_data.get('email')
+        )
         send_email_comfirmation_code(user)
         return Response(
             serializer.validated_data,
@@ -96,7 +98,7 @@ class TokenObtainView(generics.GenericAPIView):
             user.is_active = True
             user.save()
             return Response(
-                f'Your token: {str(AccessToken.for_user(user))}',
+                f'Ваш токен: {str(AccessToken.for_user(user))}',
                 status=status.HTTP_200_OK
             )
         return Response(

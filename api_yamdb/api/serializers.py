@@ -36,7 +36,7 @@ class TitleSerializer(serializers.ModelSerializer):
     """
     genre = GenreSerializer(many=True)
     category = CategorySerializer()
-    rating = serializers.IntegerField()
+    rating = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Title
@@ -74,14 +74,11 @@ class TitleCreateSerializer(serializers.ModelSerializer):
 
     def validate_genre(self, genre):
         if not genre:
-            raise serializers.ValidationError("Добавьте хотя бы один жанр.")
+            raise serializers.ValidationError('Добавьте хотя бы один жанр.')
         return genre
 
     def to_representation(self, instance):
-        if not hasattr(instance, 'rating'):
-            instance.rating = 0
-        serializer = TitleSerializer(instance)
-        return serializer.data
+        return TitleSerializer(instance).data
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -96,17 +93,21 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = '__all__'
-        read_only_fields = ['title', ]
+        read_only_fields = ('title', )
 
-    def create(self, validated_data):
-        if Review.objects.filter(
-            title=validated_data.get('title'),
-            author=validated_data.get('author')
-        ).exists():
+    def validate(self, data):
+        request = self.context.get('request')
+        if (
+            request.method == 'POST'
+            and Review.objects.filter(
+                title=request.parser_context.get('kwargs').get('title_id'),
+                author=request.user
+            ).exists()
+        ):
             raise serializers.ValidationError(
                 'Вы уже написали отзыв к этому произведению.'
             )
-        return super().create(validated_data)
+        return super().validate(data)
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -121,4 +122,4 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = '__all__'
-        read_only_fields = ['review', ]
+        read_only_fields = ('review', )
