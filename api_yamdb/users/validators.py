@@ -21,5 +21,5 @@ def validate_username(username):
             ' только буквы, цифры и символы _ . @ + - \n'
         )
     if username.lower() == 'me':
-        return 'Нельзя использовать "me".'
+        raise ValidationError('Нельзя использовать "me".')
     return username
