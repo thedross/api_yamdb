@@ -61,7 +61,7 @@ class Command(BaseCommand):
         for field in fields:
             if field not in model_fields:
                 raise CommandError(
-                    f"{field} field does not exists in {Model}"
+                    f'{field} field does not exists in {Model}'
                 )
 
     def handle(self, *args, **options):
@@ -72,7 +72,7 @@ class Command(BaseCommand):
                 csv_path = os.path.join(self.CSV_FOLDER, (file + '.csv'))
                 Model = apps.get_model(app, models[i])
 
-                with open(csv_path, newline='', encoding="utf-8") as csv_file:
+                with open(csv_path, newline='', encoding='utf-8') as csv_file:
                     reader = csv.reader(csv_file, delimiter=',')
                     fields = [
                         field.removesuffix('_id')
