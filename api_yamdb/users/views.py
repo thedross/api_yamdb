@@ -33,7 +33,7 @@ class UsersViewSet(viewsets.ModelViewSet):
         permissions.IsAuthenticated,
         IsSuperOrAdmin
     )
-    lookup_field = "username"
+    lookup_field = 'username'
     http_method_names = ['get', 'post', 'head', 'patch', 'delete']
 
     @action(
