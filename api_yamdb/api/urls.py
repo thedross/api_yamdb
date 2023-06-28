@@ -9,7 +9,7 @@ from api.views import (
     ReviewViewSet,
     TitlesViewSet,
 )
-from users.views import UsersViewSet, CreateUserView, TokenObtainView
+from users.views import CreateUserView, TokenObtainView, UsersViewSet
 
 app_name = 'api'
 

@@ -1,20 +1,18 @@
-from django.core.mail import send_mail
 from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
 
-from users.models import CustomUser as User
 
-
-def get_confirmation_code(email):
+def get_confirmation_code(user):
     """Генерирует код подтверждения."""
-    return default_token_generator.make_token(User.objects.get(email=email))
+    return default_token_generator.make_token(user)
 
 
-def send_email_comfirmation_code(email):
+def send_email_comfirmation_code(user):
     """Отправляет письмо с кодом подтверждения на email."""
     send_mail(
         subject='Код подтверждения',
-        message=f'Ваш код подтверждения: {get_confirmation_code(email)}',
+        message=f'Ваш код подтверждения: {get_confirmation_code(user)}',
         from_email=None,
-        recipient_list=[email],
+        recipient_list=[user.email],
         fail_silently=False,
     )

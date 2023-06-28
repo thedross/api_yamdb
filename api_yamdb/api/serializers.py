@@ -1,3 +1,4 @@
+from django.core.validators import MaxValueValidator
 from rest_framework import serializers
 from django.core.validators import MaxValueValidator
 from rest_framework.relations import SlugRelatedField
@@ -78,7 +79,10 @@ class TitleCreateSerializer(serializers.ModelSerializer):
         return genre
 
     def to_representation(self, instance):
-        return TitleSerializer(instance).data
+        if not hasattr(instance, 'rating'):
+            instance.rating = 0
+        serializer = TitleSerializer(instance)
+        return serializer.data
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -92,7 +96,8 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Review
-        fields = ('id', 'text', 'author', 'score', 'pub_date')
+        fields = '__all__'
+        read_only_fields = ['title', ]
 
     def create(self, validated_data):
         if Review.objects.filter(
@@ -116,4 +121,5 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ('id', 'text', 'author', 'pub_date')
+        fields = '__all__'
+        read_only_fields = ['review', ]

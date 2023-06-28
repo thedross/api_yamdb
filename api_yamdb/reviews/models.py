@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
@@ -10,9 +9,7 @@ from reviews.constants import (
     TEXT_UPPER_BOUND,
 )
 from reviews.utils import get_current_year
-
-
-User = get_user_model()
+from users.models import CustomUser as User
 
 
 class NameSlugBaseModel(models.Model):

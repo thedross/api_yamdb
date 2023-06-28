@@ -11,9 +11,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
-from api.permissions import (
-    IsSuperOrAdmin
-)
+from api.permissions import IsSuperOrAdmin
 from users.models import CustomUser as User
 from users.serializers import (
     CreateUserSerializer,
@@ -70,9 +68,7 @@ class CreateUserView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         user = User.objects.get(email=serializer.validated_data.get('email'))
-        send_email_comfirmation_code(
-            user.email
-        )
+        send_email_comfirmation_code(user)
         return Response(
             serializer.validated_data,
             status=status.HTTP_200_OK
@@ -100,7 +96,7 @@ class TokenObtainView(generics.GenericAPIView):
             user.is_active = True
             user.save()
             return Response(
-                f"'token': {str(AccessToken.for_user(user))}",
+                f'Your token: {str(AccessToken.for_user(user))}',
                 status=status.HTTP_200_OK
             )
         return Response(
