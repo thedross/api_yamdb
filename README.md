@@ -6,7 +6,7 @@
 
 ## [Ирина](https://github.com/alicezweig)
 
-[Федор](https://github.com/thedross)
+## [Федор](https://github.com/thedross)
 
 
 ## Проект **YaMDb** собирает отзывы пользователей на различные произведения.
